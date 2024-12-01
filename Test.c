@@ -19,6 +19,8 @@ pAVL createAVL(int station, int Cap, int Sum){
     new->stationID = station;
     new->Capacity = Cap;
     new->SumCons = Sum;
+    new->fright = NULL;
+    new->fleft = NULL;
     return new;
 }
 
