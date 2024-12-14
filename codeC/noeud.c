@@ -109,3 +109,102 @@ NoeudAVL *rotationDoubleGauche(NoeudAVL *avl)
     avl->fg = rotationGauche(avl->fg);
     return rotationdroite(avl);
 }
+
+NoeudAVL *équilibrerAVL(NoeudAVL *avl)
+{
+    if (hauteur(avl->fd) - hauteur(avl->fg) > 1)
+    {
+        if (hauteur(avl->fd->fd) - hauteur(avl->fd->fg) <= 0)
+        {
+            return rotationdroite(avl);
+        }
+        else
+        {
+            return rotationDoubleDroite(avl);
+        }
+    }
+    else if (hauteur(avl->fd) - hauteur(avl->fg) < -1)
+    {
+        if (hauteur(avl->fg->fd) - hauteur(avl->fg->fg) >= 0)
+        {
+            return rotationgauche(avl);
+        }
+        else
+        {
+            return rotationDoubleGauche(avl);
+        }
+    }
+    return avl;
+}
+
+NoeudAVL *insertionAVL(NoeudAVL *a, int e, int *h)
+{
+    if (a == NULL)
+    {           // Si l'arbre est vide, crée un nouveau nœud
+        *h = 1; // La hauteur a augmenté
+        return creerAVL(e);
+    }
+    else if (e < a->hauteur)
+    { // Si l'élément est plus petit, insérer à gauche
+        a->fg = insertionAVL(a->fg, e, h);
+        *h = -*h; // Inverse l'impact de la hauteur
+    }
+    else if (e > a->hauteur)
+    { // Si l'élément est plus grand, insérer à droite
+        a->fd = insertionAVL(a->fd, e, h);
+    }
+    else
+    { // Élément déjà présent
+        *h = 0;
+        return a;
+    }
+
+    // Mise à jour du facteur d'équilibre et rééquilibrage si nécessaire
+    if (*h != 0)
+    {
+        a->hauteur += *h;
+        a = equilibrerAVL(a);
+        *h = (a->hauteur == 0) ? 0 : 1; // Mise à jour de la hauteur
+    }
+    return a;
+}
+
+int estEnSurconsommation(NoeudAVL *noeud)
+{
+    if (noeud == NULL)
+        return 0;
+    return (noeud->charge > noeud->capacite);
+}
+
+int estEnSousConsommation(NoeudAVL *noeud)
+{
+    if (noeud == NULL)
+        return 0;
+    return (noeud->charge < noeud->capacite);
+}
+
+void afficherStationsEnSurconsommation(NoeudAVL *racine)
+{
+    if (racine == NULL)
+        return;
+    afficherStationsEnSurconsommation(racine->fg);
+    if (estEnSurconsommation(racine))
+    {
+        printf("Station ID: %d est en surconsommation (Charge: %lld, Capacité: %lld)\n",
+               racine->id, racine->charge, racine->capacite);
+    }
+    afficherStationsEnSurconsommation(racine->fd);
+}
+
+void afficherStationsEnSousConsommation(NoeudAVL *racine)
+{
+    if (racine == NULL)
+        return;
+    afficherStationsEnSousConsommation(racine->fg);
+    if (estEnSousConsommation(racine))
+    {
+        printf("Station ID: %d est en sous-consommation (Charge: %lld, Capacité: %lld)\n",
+               racine->id, racine->charge, racine->capacite);
+    }
+    afficherStationsEnSousConsommation(racine->fd);
+}
