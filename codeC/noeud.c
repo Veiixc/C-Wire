@@ -208,3 +208,24 @@ void afficherStationsEnSousConsommation(NoeudAVL *racine)
     }
     afficherStationsEnSousConsommation(racine->fd);
 }
+
+int rechercherNoeud(NoeudAVL *racine, int id, NoeudAVL **noeudTrouve)
+{
+    if (racine == NULL)
+    {
+        return 0;
+    }
+    if (racine->id == id)
+    {
+        *noeudTrouve = racine;
+        return 1;
+    }
+    if (id < racine->id)
+    {
+        return rechercherNoeud(racine->fg, id, noeudTrouve);
+    }
+    else
+    {
+        return rechercherNoeud(racine->fd, id, noeudTrouve);
+    }
+}

@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra -std=c99
 LDFLAGS =
 
 # Source files
-SRCS = main.c 
+SRCS = mainc.c noeud.c data.c 
 OBJS = $(SRCS:.c=.o)
 TARGET = C-wire
 
