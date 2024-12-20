@@ -42,6 +42,4 @@ typedef struct NoeudAVL
     struct NoeudAVL *fd;       // Pointeur vers le sous-arbre droit
 } NoeudAVL;
 
-typedef struct NoeudAVL NoeudAVL;
-
 #endif

@@ -22,9 +22,6 @@ type_station=$2
 type_consommateur=$3
 id_centrale=$4
 
-echo $type_station
-
-
 if [ ! -f "$chemin_csv" ]; then
 echo "Erreur : le fichier CSV n'existe pas"
 aide
@@ -50,27 +47,26 @@ fi
     exit 0
 fi
 
-
-c_compilation = ./a.out...
+c_compilation=./codeC/C-wire
 if [[ ! -x "$c_compilation" ]]; then
-    echo "Compilatio en cours"
-    ./a.out...
-if [[ $? -eq 0 ]]; then
-    echo "Compilation réussie."
-else
-    echo -e "Erreur : Échec de la compilation du programme C."
-    exit 1
-fi
+    echo "Compilation en cours"
+    make -C ./codeC
+    if [[ $? -eq 0 ]]; then
+        echo "Compilation réussie."
+    else
+        echo -e "Erreur : Échec de la compilation du programme C."
+        exit 1
+    fi
 fi
 
-mkdir -p tmp graphs
-rm -rf tmp/* graphs/*
+# mkdir -p tmp graphs
+# rm -rf tmp/* graphs/*
 
 
 
 debut_temps=$(date +%s)
 
-sleep 5
+# sleep 5
 fin_temps=$(date +%s)
 
 
@@ -88,24 +84,26 @@ fin_temps=$(date +%s)
 #echo "Les résultats sont enregistrés dans $output_file."
 
 # Vérification si l'ID de la centrale est vide
-if [[ -z "$central_id" ]]; then
-    # Si pas d'ID de centrale, exécute le programme C sans l'ID
-    $c_program "$csv_path" "$station_type" "$consumer_type"
-else
-    # Si l'ID de centrale est fourni, exécute le programme C avec l'ID
-    $c_program "$csv_path" "$station_type" "$consumer_type" "$central_id"
-fi
+# if [[ -z "$central_id" ]]; then
+#     # Si pas d'ID de centrale, exécute le programme C sans l'ID
+#     $c_program "$csv_path" "$station_type" "$consumer_type"
+# else
+#     # Si l'ID de centrale est fourni, exécute le programme C avec l'ID
+#     $c_program "$csv_path" "$station_type" "$consumer_type" "$central_id"
+# fi
+echo "LMancement de elzegpzng"
+$c_compilation $chemin_csv $type_station $type_consommateur $id_centrale
 
 # Vérification du succès de l'exécution de la commande précédente
 if [[ $? -ne 0 ]]; then
     # Si la commande a échoué, affiche un message d'erreur et termine le script
-    echo -e "Erreur : Le traitement a échoué."
+    echo "Erreur : Le traitement a échoué."
     exit 1
 fi
 
 
-duration=$((fin_temps - debut_temps))
-echo "Durée totale : $duration secondes"
+# duration=$((fin_temps - debut_temps))
+# echo "Durée totale : $duration secondes"
 
 
 echo "Fin du Traitement de donnés."

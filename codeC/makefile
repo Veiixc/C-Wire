@@ -1,10 +1,9 @@
 # Compiler flags
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c99
-LDFLAGS =
 
 # Source files
-SRCS = mainc.c noeud.c data.c 
+SRCS = main.c noeud.c data.c 
 OBJS = $(SRCS:.c=.o)
 TARGET = C-wire
 

@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "stdlib.h": "c",
+        "noeud.h": "c",
+        "stdio.h": "c",
+        "struct.h": "c"
+    }
+}
