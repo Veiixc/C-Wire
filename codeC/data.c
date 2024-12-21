@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "./struct.h"
+#include "./data.h"
 
 DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
 {
@@ -64,11 +65,10 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
     return entrees;
 }
 
-void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur)
+void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_centrale)
 {
     char nom_fichier[50];
-    sprintf(nom_fichier, "./tests/%s_%s.csv", station, consommateur);
-    printf("%s", nom_fichier);
+    sprintf(nom_fichier, "./tests/%s_%s_%s.csv", station, consommateur, id_centrale);
 
     FILE *file = fopen(nom_fichier, "w");
 

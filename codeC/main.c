@@ -32,9 +32,9 @@ void printTree(NoeudAVL *root)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 4)
+    if (argc < 4)
     {
-        printf("Les arguments donnés en entrée sont incorrects.");
+        printf("Les arguments donnés en entrée sont incorrects.\n");
         return EXIT_FAILURE;
     }
     int nb_entrees = 0;
@@ -49,8 +49,10 @@ int main(int argc, char *argv[])
     // }
 
     NoeudAVL *arbre = creerArbre(entrees, nb_entrees);
-
-    ecrireFichier(arbre, argv[2], argv[3]);
+    if (argc == 5)
+        ecrireFichier(arbre, argv[2], argv[3], argv[4]);
+    else
+        ecrireFichier(arbre, argv[2], argv[3], "");
     // printTree(arbre);
 
     free(arbre);

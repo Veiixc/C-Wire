@@ -2,7 +2,7 @@
 #define DATA_H
 #include "./struct.h"
 
-DataCSV *parserLigneCSV(char *chemin, int *nb_entrees);
-void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur);
+DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees);
+void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_centrale);
 void remplirFichier(FILE *file, NoeudAVL *arbre);
 #endif

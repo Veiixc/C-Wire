@@ -1,4 +1,6 @@
 #!/bin/bash
+echo "Début du traitement de donnés."
+
 aide(){
     echo "paramètres:"
     echo "chemin du fichiercsv(obligatoire)"
@@ -64,87 +66,72 @@ aide
 fi
 
 mkdir -p tmp graphs tests
-rm -rf tmp/* graphs/*
+rm -rf tmp/* 
 
-debut_temps=$(date +%s)
-
-# sleep 5
-fin_temps=$(date +%s)
-
+# Filtrage des données
+debut_temps=$(date +%s%3N)
 fichier_filtre="./tmp/${2}_${3}_${4}cwire.csv"
-awk -F';' -v station="$2" -v conso="$3" -v fichier_filtre="$fichier_filtre" '
+awk -F';' -v station="$type_station" -v conso=$type_consommateur -v id_centrale=$id_centrale -v fichier_filtre="$fichier_filtre" '
 BEGIN {
     OFS=";"
     print "type de station (" station ");capacité;consommation" > fichier_filtre
 }
 
 NR > 1 {
+    if (length(id_centrale) != 0 && id_centrale != $1) next
+
     if (station == "hvb") stat = $2
     else if (station == "hva") stat = $3
     else if (station == "lv") stat = $4
     else {
         print "Erreur : Type de station invalide." > "/dev/stderr"
-        exit 8
-    }
-
-    if (conso == "comp") cons = $5
-    else if (conso == "indiv") cons = $6
-    else if (conso == "all") cons = ($5 + $6)
-    else {
-        print "Erreur : Type de consommateur invalide." > "/dev/stderr"
-        exit 9
+        exit 1
     }
 
     if (station == "hvb" && stat != "-" && $3 == "-") {
         print stat, $7, $8 >> fichier_filtre
     } else if (station == "hva" && stat != "-" && $4 == "-") {
         print stat, $7, $8 >> fichier_filtre
-    } else if (station == "lv") {
-        if ((conso == "indiv" && $6 == "-") || (conso == "comp" && $5 == "-") || conso == "all") {
+    } else if (station == "lv" && stat != "-") {
+        if ((conso == "all") || (conso == "indiv" && $5 == "-") || (conso == "comp" && $6 == "-")) {
             print stat, $7, $8 >> fichier_filtre
         }
     }
 }
 
 END {
-  print "Succès du traitement. Les résultats se trouvent dans le dossier tests.";
+  print "Succès du traitement. Les résultats se trouvent dans le dossier tmp.";
   print ""
 } ' $chemin_csv
-#output_file="tmp/resultat.csv"
-#if [ -z "$id_centrale" ]; then
-#    grep "$type_station" "$fichier_csv" | grep "$type_consommateur" > "$output_file"
-#else
-#    grep "$type_station" "$fichier_csv" | grep "$type_consommateur" | grep "$id_centrale" > "$output_file"
-#fi
+fin_temps=$(date +%s%3N)
+duree=$((fin_temps - debut_temps))
+echo -e "L'exécution du filtrage des données a pris $duree millisecondes."
 
-#if [ ! -s "$output_file" ]; then
-#    echo "Aucune donnée trouvée correspondant aux critères."
-#    exit 1
-#fi
-#echo "Les résultats sont enregistrés dans $output_file."
-
-# Vérification si l'ID de la centrale est vide
-# if [[ -z "$central_id" ]]; then
-#     # Si pas d'ID de centrale, exécute le programme C sans l'ID
-#     $c_program "$csv_path" "$station_type" "$consumer_type"
-# else
-#     # Si l'ID de centrale est fourni, exécute le programme C avec l'ID
-#     $c_program "$csv_path" "$station_type" "$consumer_type" "$central_id"
-# fi
+# Exécution du programme C
 echo "Lancement du programme"
-$c_compilation $fichier_filtre $type_station $type_consommateur
+debut_temps=$(date +%s%3N)
+$c_compilation $fichier_filtre $type_station $type_consommateur $id_centrale
+fin_temps=$(date +%s%3N)
+duree=$((fin_temps - debut_temps))
+echo -e "L'exécution du programme a pris $duree millisecondes."
 
 # Vérification du succès de l'exécution de la commande précédente
 if [[ $? -ne 0 ]]; then
     # Si la commande a échoué, affiche un message d'erreur et termine le script
-    echo "Erreur : Le traitement a échoué."
+    echo -e "Erreur : Le traitement a échoué.\n"
     exit 1
 fi
 
+# Génération des graphiques
+directory="./tests"
+debut_temps=$(date +%s%3N)
+for file in "$directory"/*.csv; do
+  # Générer la commande gnuplot avec le fichier spécifique
+  gnuplot -e "datafileEntry='$file' ; nom_image='$file.png' ; type_station='$type_station'" ./graphs/plot.gp
+done
+fin_temps=$(date +%s%3N)
+duree=$((fin_temps - debut_temps))
+echo -e "La génération des graphiques a pris $duree millisecondes."
 
-# duration=$((fin_temps - debut_temps))
-# echo "Durée totale : $duration secondes"
-
-
-echo "Fin du Traitement de donnés."
+echo "Fin du traitement de données."
 exit 0
