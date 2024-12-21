@@ -1,0 +1,83 @@
+# Nom du fichier filtré
+fichier_filtre="${type_station}_${type_consommateur}_${id_centrale}cwire.csv"
+echo "type de station;capacité;consommation" > "$fichier_filtre"
+
+# Traitement des données avec grep
+if [[ "$type_station" == "hvb" ]]; then
+    colonne_station=2
+elif [[ "$type_station" == "hva" ]]; then
+    colonne_station=3
+else
+    colonne_station=4
+fi
+
+if [[ "$type_consommateur" == "comp" ]]; then
+    colonne_consommateur=5
+elif [[ "$type_consommateur" == "indiv" ]]; then
+    colonne_consommateur=6
+else
+    colonne_consommateur="5,6"
+fi
+
+# Construction du filtre grep
+if [[ -z "$id_centrale" ]]; then
+    grep -E "^[^;]*;[^;]*;[^;]*;[^;]*;[^;]*;[^;]*$" "$chemin_csv" | \
+    awk -F';' -v station_col="$colonne_station" -v conso_col="$colonne_consommateur" -v fichier="$fichier_filtre" \
+    'BEGIN { OFS=";"; print "type de station;capacité;consommation" > fichier } \
+    { print $station_col, $7, $8 >> fichier }'
+else
+    grep "$id_centrale" "$chemin_csv" | \
+    awk -F';' -v station_col="$colonne_station" -v conso_col="$colonne_consommateur" -v fichier="$fichier_filtre" \
+    'BEGIN { OFS=";"; print "type de station;capacité;consommation" > fichier } \
+    { print $station_col, $7, $8 >> fichier }'
+fi
+
+echo "Succès du traitement. Les résultats se trouvent dans : $fichier_filtre"
+
+
+
+
+# Nom du fichier filtré
+fichier_filtre="${type_station}_${type_consommateur}_${id_centrale}cwire.csv"
+echo "type de station;capacité;consommation" > "$fichier_filtre"
+
+# Traitement des données avec awk
+awk -F';' -v station="$type_station" -v conso="$type_consommateur" -v fichier_filtre="$fichier_filtre" '
+BEGIN {
+    OFS=";"
+    print "type de station;capacité;consommation" > fichier_filtre
+}
+
+NR > 1 {
+    if (station == "hvb") stat = $2
+    else if (station == "hva") stat = $3
+    else if (station == "lv") stat = $4
+    else {
+        print "Erreur : Type de station invalide." > "/dev/stderr"
+        exit 8
+    }
+
+    if (conso == "comp") cons = $5
+    else if (conso == "indiv") cons = $6
+    else if (conso == "all") cons = ($5 + $6)
+    else {
+        print "Erreur : Type de consommateur invalide." > "/dev/stderr"
+        exit 9
+    }
+
+    if (station == "hvb" && stat != "-" && $3 == "-") {
+        print stat, $7, $8 >> fichier_filtre
+    } else if (station == "hva" && stat != "-" && $4 == "-") {
+        print stat, $7, $8 >> fichier_filtre
+    } else if (station == "lv") {
+        if ((conso == "indiv" && $6 == "-") || (conso == "comp" && $5 == "-") || conso == "all") {
+            print stat, $7, $8 >> fichier_filtre
+        }
+    }
+}
+
+END {
+    print "Succès du traitement. Les résultats se trouvent dans :", fichier_filtre
+}' "$chemin_csv"
+
+exit 0

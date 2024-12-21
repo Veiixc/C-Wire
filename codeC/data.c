@@ -32,7 +32,7 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
         }
         entrees = nouvelles_entrées;
 
-        DataCSV entree = {-1, -1, -1, -1, -1, -1, -1, -1};
+        DataCSV entree = {-1, 0, 0};
         ligne[strcspn(ligne, "\n")] = "\0";
         char *jeton = strtok(ligne, ";");
         int colonne = 0;
@@ -43,27 +43,12 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
                 switch (colonne)
                 {
                 case 0:
-                    entree.id_centrale = atoi(jeton);
+                    entree.id_station = atoi(jeton);
                     break;
                 case 1:
-                    entree.id_hvb = atoi(jeton);
-                    break;
-                case 2:
-                    entree.id_hva = atoi(jeton);
-                    break;
-                case 3:
-                    entree.id_lv = atoi(jeton);
-                    break;
-                case 4:
-                    entree.id_entreprise = atoi(jeton);
-                    break;
-                case 5:
-                    entree.id_particulier = atoi(jeton);
-                    break;
-                case 6:
                     entree.capacite = atoll(jeton);
                     break;
-                case 7:
+                case 2:
                     entree.charge = atoll(jeton);
                     break;
                 default:
@@ -79,9 +64,26 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
     return entrees;
 }
 
-// NoeudAVL buildtree()
-// {
-//     return 1;
-// }
+void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur)
+{
+    char nom_fichier[50];
+    sprintf(nom_fichier, "./tests/%s_%s.csv", station, consommateur);
+    printf("%s", nom_fichier);
 
-// capacité - consommattion
+    FILE *file = fopen(nom_fichier, "w");
+
+    fprintf(file, "Station %s:Capacité:Consommation %s\n", station, consommateur);
+    remplirFichier(file, arbre);
+
+    fclose(file);
+}
+
+void remplirFichier(FILE *file, NoeudAVL *arbre)
+{
+    if (arbre != NULL)
+    {
+        fprintf(file, "%d:%lld:%lld\n", arbre->id, arbre->capacite, arbre->charge);
+        remplirFichier(file, arbre->fg);
+        remplirFichier(file, arbre->fd);
+    }
+}
