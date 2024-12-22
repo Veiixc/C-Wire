@@ -1,12 +1,64 @@
 #!/bin/bash
 echo "Début du traitement de donnés."
 
+# variables pour la police de caractères
+bold=$(tput bold)
+normal=$(tput sgr0)
+no_color='\033[0m'
+red='\033[0;31m'
+erreurMessage="${bold}[${red}Erreur${no_color}]${normal}"
+
 aide(){
-    echo "paramètres:"
-    echo "chemin du fichiercsv(obligatoire)"
-    echo "type de station(hvb, hva, lv) (obligatoire)"
-    echo "Type de consommateur (comp, indiv, all) (obligatoire)"
-    echo "Identification d'une centrale(optionnel)"
+    echo "${bold}NAME${normal}"
+    echo "    c-wire.sh - Script de traitement des données électriques."
+    echo
+    echo "${bold}SYNOPSIS${normal}"
+    echo "    ./c-wire.sh [OPTIONS] <chemin_fichier> <type_station> <type_consommateur> [id_centrale]"
+    echo
+    echo "${bold}DESCRIPTION${normal}"
+    echo "    c-wire.sh est un script Shell utilisé pour traiter des données électriques"
+    echo "    contenues dans un fichier CSV en fonction des types de stations, des"
+    echo "    consommateurs, et éventuellement d'un identifiant de centrale."
+    echo
+    echo "${bold}OPTIONS${normal}"
+    echo "    -h"
+    echo "        Affiche cette aide détaillée et ignore tous les autres arguments."
+    echo
+    echo "${bold}ARGUMENTS${normal}"
+    echo "    chemin_fichier"
+    echo "        Chemin absolu ou relatif vers le fichier CSV contenant les données."
+    echo "        Cet argument est obligatoire."
+    echo
+    echo "    type_station"
+    echo "        Type de station électrique à traiter. Les valeurs possibles sont :"
+    echo "            hvb  - High Voltage B"
+    echo "            hva  - High Voltage A"
+    echo "            lv   - Low Voltage"
+    echo "        Cet argument est obligatoire."
+    echo
+    echo "    type_consommateur"
+    echo "        Type de consommateur à traiter. Les valeurs possibles sont :"
+    echo "            comp  - Entreprises"
+    echo "            indiv - Particuliers"
+    echo "            all   - Tous les types de consommateurs"
+    echo
+    echo "        ATTENTION :"
+    echo "            Les combinaisons suivantes sont interdites, car seules"
+    echo "            des entreprises sont connectées aux stations HV-B et HV-A :"
+    echo "                - hvb all"
+    echo "                - hvb indiv"
+    echo "                - hva all"
+    echo "                - hva indiv"
+    echo
+    echo "    id_centrale"
+    echo "        Identifiant optionnel d'une centrale spécifique à traiter."
+    echo "        Si absent, les traitements seront effectués sur toutes les centrales."
+    echo
+    echo "${bold}NOTES${normal}"
+    echo "    - Le fichier spécifié doit exister."
+    echo "    - Si l'exécutable requis pour le traitement n'est pas trouvé, le script"
+    echo "      essaiera de le compiler avant de procéder."
+    exit 0
 }
 
 debut_temps=$(date +%s%3N)
@@ -34,7 +86,7 @@ if [[ $@ == *"-h"* ]]; then
 fi 
 
 if [ $# -lt 3 ]; then 
-    echo "arguments insuffisants"
+    echo -e "${erreurMessage} arguments insuffisants"
     aide
     afficherTemps
     exit 1          
@@ -46,7 +98,7 @@ type_consommateur=$3
 id_centrale=$4
 
 if [ ! -f "$chemin_csv" ]; then
-    echo "Erreur : le fichier CSV n'existe pas"
+    echo -e "${erreurMessage} Le fichier CSV n'existe pas"
     aide
     afficherTemps
     exit 2
@@ -56,21 +108,21 @@ fi
 # if [ $type_station != "hvb" ] ; then 
 
 if [[ ! "$type_station" =~ ^(hvb|hva|lv)$ ]]; then
-    echo "Erreur : Le type de station doit être hvb, hva ou lv."
+    echo -e "${erreurMessage} Le type de station doit être hvb, hva ou lv."
     aide
     afficherTemps
     exit 3
 fi
 
 if [[ ! "$type_consommateur" =~ ^(comp|indiv|all)$ ]]; then
-    echo "Erreur : Le type de consommateur doit être 'comp', 'indiv' ou 'all'."
+    echo -e "${erreurMessage} Le type de consommateur doit être 'comp', 'indiv' ou 'all'."
     aide
     afficherTemps
     exit 1
 fi
  
  if [[ "$type_station" =~ ^(hvb|hva)$ && "$type_consommateur" =~ ^(indiv|all)$ ]]; then
-    echo -e "Erreur: Les combinaisons suivantes sont interdites :"
+    echo -e "${erreurMessage} Les combinaisons suivantes sont interdites :"
     echo "  hvb all, hvb indiv, hva all, hva indiv"
     aide
     afficherTemps
@@ -84,7 +136,7 @@ if [[ ! -x "$c_compilation" ]]; then
     if [[ $? -eq 0 ]]; then
         echo "Compilation réussie."
     else
-        echo -e "Erreur : Échec de la compilation du programme C."
+        echo -e "${erreurMessage} Échec de la compilation du programme C."
         afficherTemps
         exit 1
     fi
@@ -139,7 +191,7 @@ temps_fin[1]=$(date +%s%3N)
 # Vérification du succès de l'exécution de la commande précédente
 if [[ $? -ne 0 ]]; then
     # Si la commande a échoué, affiche un message d'erreur et termine le script
-    echo -e "Erreur : Le traitement a échoué.\n"
+    echo -e "${erreurMessage} Le traitement a échoué.\n"
     afficherTemps
     exit 1
 fi
