@@ -1,5 +1,5 @@
 set datafile separator ":"
-set terminal png size 800,600
+set terminal png size 10000,600
 set output nom_image
 set title "Capacité et Consommation par Station " . type_station
 set xlabel "Stations " . type_station
@@ -9,8 +9,8 @@ set grid
 # Définir les styles pour les barres
 set style fill solid 1.0 border -1  # Remplissage des barres
 set boxwidth 0.4  # Largeur des barres
-set key at screen 0.97, 0.98 # Placer la légende au premier plan (coin supérieur droit)
+set key center top # Placer la légende
 
 # Afficher les barres côte à côte en les décalant
 plot datafileEntry using (column(1)-0.2):2:xtic(1) title "Capacité" lc rgb "blue" with boxes, \
-     datafileEntry using (column(1)+0.2):3 title "Consommation" lc rgb "red" with boxes
+     datafileEntry using (column(1)+0.2):3 title "Consommation" lc rgb "purple" with boxes

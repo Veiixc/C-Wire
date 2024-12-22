@@ -2,8 +2,6 @@
 #define NOEUD_H
 #include "./struct.h"
 
-int hauteur(NoeudAVL *avl);
-void mettreaJourHauteur(NoeudAVL *avl);
 NoeudAVL *rotationGauche(NoeudAVL *avl);
 NoeudAVL *rotationDroite(NoeudAVL *avl);
 NoeudAVL *rotationDoubleDroite(NoeudAVL *avl);
@@ -16,5 +14,6 @@ int max3(int a, int b, int c);
 int min3(int a, int b, int c);
 int max(int a, int b);
 int min(int a, int b);
-int equilibre(NoeudAVL *avl);
+void afficheInformationsNoeud(NoeudAVL *noeud);
+void affichePrefixe(NoeudAVL *noeud);
 #endif

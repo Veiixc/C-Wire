@@ -11,11 +11,12 @@ aide(){
 
 debut_temps=$(date +%s%3N)
 # indice 1 = temps de filtrage
-# indice 2 = Exécution du programme
-# indice 2 = Création des graphiques
-temps_debut=($debut_temps $debut_temps $debut_temps)
-temps_fin=($debut_temps $debut_temps $debut_temps)
-temps_nom=("Filtrage des données" "Exécution du programme" "Création des graphiques")
+# indice 2 = tmps d'exécution du programme
+# indice 3 = temps de tri
+# indice 4 = temps de création des graphiques
+temps_debut=($debut_temps $debut_temps $debut_temps $debut_temps)
+temps_fin=($debut_temps $debut_temps $debut_temps $debut_temps)
+temps_nom=("Filtrage des données" "Exécution du programme" "Tri des données" "Création des graphiques")
 afficherTemps(){
     for i in "${!temps_debut[@]}"; do
         debut=${temps_debut[$i]}
@@ -93,8 +94,9 @@ mkdir -p tmp graphs tests
 rm -rf tmp/* 
 
 # Filtrage des données
+echo -e "Filtre des données pour la station ${type_station} et le consommateur ${type_consommateur}"
 temps_debut[0]=$(date +%s%3N)
-fichier_filtre="./tmp/${2}_${3}_${4}cwire.csv"
+fichier_filtre="./tmp/${2}_${3}_${4}_filtre.csv" # renommer si pas de centrale id
 awk -F';' -v station="$type_station" -v conso=$type_consommateur -v id_centrale=$id_centrale -v fichier_filtre="$fichier_filtre" '
 BEGIN {
     OFS=";"
@@ -124,8 +126,6 @@ NR > 1 {
 }
 
 END {
-  print "Succès du traitement. Les résultats se trouvent dans le dossier tmp.";
-  print ""
 } ' $chemin_csv
 temps_fin[0]=$(date +%s%3N)
 
@@ -145,26 +145,43 @@ if [[ $? -ne 0 ]]; then
 fi
 
 #Tri du fichier
+echo "Tri des fichiers"
+temps_debut[2]=$(date +%s%3N)
 directory="./tmp"
 for file in "$directory"/*.csv; do
-  if [[ "$file" =~ non_trie\.csv$ ]]; then
-    base_name=$(basename "$file" .csv)
-    base_name=${base_name/_non_trie/}  # suppression du nom temporaire
-    sort -t':' -k2 -n $file > "./tests/${base_name}.csv"
+    if [[ "$file" =~ non_trie\.csv$ ]]; then
+        base_name=$(basename "$file" .csv)
+        base_name=${base_name/_non_trie/}  # remplacement du nom temporaire
+        sort -t':' -k2 -n $file > "./tests/${base_name}.csv"
+
+        # genere le fichier lv_min_max
+        if [ $file == "./tmp/lv_all_non_trie.csv" ]; then
+            sort -t':' -k4 -n "./tmp/lv_all_minmax.csv" > "./tmp/lv_all_minmax_trie.csv"
+            head -n 11 "./tmp/lv_all_minmax_trie.csv" > ./tmp/lv_min_trie.csv
+            tail -n 10 "./tmp/lv_all_minmax_trie.csv" > ./tmp/lv_max_trie.csv
+            cat ./tmp/lv_max_trie.csv >> ./tmp/lv_min_trie.csv
+            cp ./tmp/lv_min_trie.csv ./tests/lv_all_minmax.csv
+        fi
     fi
 done;
+temps_fin[2]=$(date +%s%3N)
 
 # Génération des graphiques
+echo "Création des graphiques"
 directory="./tests"
-temps_debut[2]=$(date +%s%3N)
+temps_debut[3]=$(date +%s%3N)
 for file in "$directory"/*.csv; do
     base_name=$(basename "$file" .csv)
-  # Générer le chemin de sortie dans le dossier graphs basename recupere le nom sans le chemin
-  output_file="./graphs/${base_name}.png"
-  # Générer la commande gnuplot avec le fichier spécifique
-  gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plot.gp
+    # Générer le chemin de sortie dans le dossier graphs basename recupere le nom sans le chemin
+    output_file="./graphs/${base_name}.png"
+    # Générer la commande gnuplot avec le fichier spécifique
+    if [ $file == "./tests/lv_all_minmax.csv" ]; then
+        gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plotLV.gp
+    elif [[ ! $file =~ ^\./tests/lv_all\.csv$ ]]; then
+        gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plot.gp
+    fi  
 done
-temps_fin[2]=$(date +%s%3N)
+temps_fin[3]=$(date +%s%3N)
 
 afficherTemps
 echo "Fin du traitement de données."

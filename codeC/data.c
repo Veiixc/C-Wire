@@ -34,7 +34,7 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
         entrees = nouvelles_entrées;
 
         DataCSV entree = {-1, 0, 0};
-        ligne[strcspn(ligne, "\n")] = "\0";
+        // ligne[strcspn(ligne, "\n")] = "\0";
         char *jeton = strtok(ligne, ";");
         int colonne = 0;
         while (jeton != NULL)
@@ -73,20 +73,42 @@ void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_
     else
         sprintf(nom_fichier, "./tmp/%s_%s_%s_non_trie.csv", station, consommateur, id_centrale);
 
-    FILE *file = fopen(nom_fichier, "w");
+    FILE *fichier = fopen(nom_fichier, "w");
 
-    fprintf(file, "Station %s:Capacité:Consommation %s\n", station, consommateur);
-    remplirFichier(file, arbre);
-
-    fclose(file);
+    fprintf(fichier, "Station %s:Capacité:Consommation %s\n", station, consommateur);
+    remplirFichier(fichier, arbre);
+    if (strcmp(station, "lv") == 0 && strcmp(consommateur, "all") == 0)
+    {
+        FILE *fileLV = fopen("./tmp/lv_all_minmax.csv", "w");
+        fprintf(fileLV, "Station LV:Capacité:Consommation (tous):consommation absolue:Surconsommation ou sousconsommation\n");
+        remplirFichierLV(fileLV, arbre);
+        fclose(fileLV);
+    }
+    fclose(fichier);
 }
 
-void remplirFichier(FILE *file, NoeudAVL *arbre)
+void remplirFichier(FILE *fichier, NoeudAVL *arbre)
 {
     if (arbre != NULL)
     {
-        fprintf(file, "%d:%lld:%lld\n", arbre->id, arbre->capacite, arbre->charge);
-        remplirFichier(file, arbre->fg);
-        remplirFichier(file, arbre->fd);
+        fprintf(fichier, "%d:%lld:%lld\n", arbre->id, arbre->capacite, arbre->charge);
+        remplirFichier(fichier, arbre->fg);
+        remplirFichier(fichier, arbre->fd);
+    }
+}
+
+void remplirFichierLV(FILE *fichier, NoeudAVL *arbre)
+{
+    if (arbre != NULL)
+    {
+        int surconsommation = 0;
+        long long quantite_absolue = arbre->capacite - arbre->charge;
+        if (quantite_absolue < 0)
+        {
+            surconsommation = 1;
+        }
+        fprintf(fichier, "%d:%lld:%lld:%lld:%d\n", arbre->id, arbre->capacite, arbre->charge, llabs(quantite_absolue), surconsommation);
+        remplirFichierLV(fichier, arbre->fg);
+        remplirFichierLV(fichier, arbre->fd);
     }
 }

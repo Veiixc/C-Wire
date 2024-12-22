@@ -3,15 +3,6 @@
 #include "./struct.h"
 #include "./noeud.h"
 
-int equilibre(NoeudAVL *avl)
-{
-    if (avl == NULL)
-    {
-        return 0;
-    }
-    return avl->equilibre;
-}
-
 NoeudAVL *rotationGauche(NoeudAVL *avl)
 {
     if (avl == NULL)
@@ -24,8 +15,8 @@ NoeudAVL *rotationGauche(NoeudAVL *avl)
     avl->fd = pivot->fg;
     pivot->fg = avl;
 
-    avl->equilibre = eq_avl - max(eq_p, 0) - 1;                       // voir CM
-    pivot->equilibre = min3(eq_avl - 2, eq_avl + eq_p - 2, eq_p - 1); // voir CM
+    avl->equilibre = eq_avl - max(eq_p, 0) - 1;
+    pivot->equilibre = min3(eq_avl - 2, eq_avl + eq_p - 2, eq_p - 1);
 
     return pivot;
 }
@@ -42,8 +33,8 @@ NoeudAVL *rotationDroite(NoeudAVL *avl)
     avl->fg = pivot->fd;
     pivot->fd = avl;
 
-    avl->equilibre = eq_avl - min(eq_p, 0) + 1;                       // voir CM
-    pivot->equilibre = max3(eq_avl + 2, eq_avl + eq_p + 2, eq_p + 1); // voir CM
+    avl->equilibre = eq_avl - min(eq_p, 0) + 1;
+    pivot->equilibre = max3(eq_avl + 2, eq_avl + eq_p + 2, eq_p + 1);
 
     return pivot;
 }
@@ -87,29 +78,6 @@ NoeudAVL *rotationDoubleGauche(NoeudAVL *avl)
 
 NoeudAVL *equilibrerAVL(NoeudAVL *avl)
 {
-    // if (equilibre(avl->fd) - equilibre(avl->fg) > 1)
-    // {
-    //     if (equilibre(avl->fd->fd) - equilibre(avl->fd->fg) >= 0)
-    //     {
-    //         return rotationDroite(avl);
-    //     }
-    //     else
-    //     {
-    //         return avl; // rotationDoubleDroite(avl);
-    //     }
-    // }
-    // else if (equilibre(avl->fd) - equilibre(avl->fg) < -1)
-    // {
-    //     if (equilibre(avl->fg->fd) - equilibre(avl->fg->fg) <= 0)
-    //     {
-    //         return rotationGauche(avl);
-    //     }
-    //     else
-    //     {
-    //         return avl; // rotationDoubleGauche(avl);
-    //     }
-    // }
-    // return avl;
     if (avl->equilibre >= 2)
     { // Cas où l'arbre est déséquilibré à droite
         if (avl->fd->equilibre >= 0)
@@ -163,7 +131,7 @@ NoeudAVL *insertionAVL(NoeudAVL *parent, NoeudAVL *noeud, int *h)
     {
         parent->equilibre += *h;
         parent = equilibrerAVL(parent);
-        *h = (parent->equilibre == 0) ? 0 : 1; // Mise à jour de la equilibre
+        *h = (parent->equilibre == 0) ? 0 : 1; // Mise à jour de l'équilibre
     }
     return parent;
 }
@@ -175,18 +143,19 @@ NoeudAVL *creerArbre(DataCSV *entrees, int nb_entrees)
     for (int i = 0; i < nb_entrees; i++)
     {
         DataCSV entree = entrees[i];
-        NoeudAVL *node = creerNoeud(entree.id_station, entree.capacite, entree.charge);
+        NoeudAVL *noeud = creerNoeud(entree.id_station, entree.capacite, entree.charge);
 
-        racine = insertionAVL(racine, node, &h);
+        racine = insertionAVL(racine, noeud, &h);
     }
     return racine;
 }
+
 NoeudAVL *creerNoeud(int id, long long capacite, long long charge)
 {
     NoeudAVL *noeud = (NoeudAVL *)malloc(sizeof(NoeudAVL));
     if (noeud == NULL)
     {
-        fprintf(stderr, "Erreur : allocation memoire echouee.\n");
+        fprintf(stderr, "Erreur : allocation mémoire echouee.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -197,4 +166,29 @@ NoeudAVL *creerNoeud(int id, long long capacite, long long charge)
     noeud->fg = NULL;
     noeud->fd = NULL;
     return noeud;
+}
+
+void afficheInformationsNoeud(NoeudAVL *noeud)
+{
+    if (noeud == NULL)
+    {
+        return;
+    }
+
+    printf("ID: %d\n", noeud->id);
+    printf("  Capacity: %lld kWh\n", noeud->capacite);
+    printf("  Load: %lld kWh\n", noeud->charge);
+    printf("  Equilibre: %d\n", noeud->equilibre);
+}
+
+void affichePrefixe(NoeudAVL *noeud)
+{
+    if (noeud == NULL)
+    {
+        return;
+    }
+
+    afficheInformationsNoeud(noeud);
+    affichePrefixe(noeud->fg);
+    affichePrefixe(noeud->fd);
 }

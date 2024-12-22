@@ -4,32 +4,6 @@
 #include "./noeud.h"
 #include "./data.h"
 
-void printNodeInfo(NoeudAVL *node)
-{
-    if (node == NULL)
-    {
-        return;
-    }
-
-    printf("ID: %d\n", node->id);
-    printf("  Capacity: %lld kWh\n", node->capacite);
-    printf("  Load: %lld kWh\n", node->charge);
-    printf("  Equilibre: %d\n", node->equilibre);
-}
-
-void printTree(NoeudAVL *root)
-{
-    if (root == NULL)
-    {
-        return;
-    }
-
-    // Parcours récursif in-order
-    printNodeInfo(root);
-    printTree(root->fg);
-    printTree(root->fd);
-}
-
 int main(int argc, char *argv[])
 {
     if (argc < 4)
@@ -53,7 +27,6 @@ int main(int argc, char *argv[])
         ecrireFichier(arbre, argv[2], argv[3], argv[4]);
     else
         ecrireFichier(arbre, argv[2], argv[3], "");
-    // printTree(arbre);
 
     free(arbre);
     free(entrees);
