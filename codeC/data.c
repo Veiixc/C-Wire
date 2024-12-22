@@ -69,9 +69,9 @@ void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_
 {
     char nom_fichier[50];
     if (strcmp(id_centrale, "") == 0)
-        sprintf(nom_fichier, "./tests/%s_%s.csv", station, consommateur);
+        sprintf(nom_fichier, "./tmp/%s_%s_non_trie.csv", station, consommateur);
     else
-        sprintf(nom_fichier, "./tests/%s_%s_%s.csv", station, consommateur, id_centrale);
+        sprintf(nom_fichier, "./tmp/%s_%s_%s_non_trie.csv", station, consommateur, id_centrale);
 
     FILE *file = fopen(nom_fichier, "w");
 

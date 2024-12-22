@@ -144,6 +144,16 @@ if [[ $? -ne 0 ]]; then
     exit 1
 fi
 
+#Tri du fichier
+directory="./tmp"
+for file in "$directory"/*.csv; do
+  if [[ "$file" =~ non_trie\.csv$ ]]; then
+    base_name=$(basename "$file" .csv)
+    base_name=${base_name/_non_trie/}  # suppression du nom temporaire
+    sort -t':' -k2 -n $file > "./tests/${base_name}.csv"
+    fi
+done;
+
 # Génération des graphiques
 directory="./tests"
 temps_debut[2]=$(date +%s%3N)

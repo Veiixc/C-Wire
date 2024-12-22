@@ -2,8 +2,8 @@ set datafile separator ":"
 set terminal png size 800,600
 set output nom_image
 set title "Capacité et Consommation par Station " . type_station
-set xlabel "Station " . type_station
-set ylabel "Valeurs"
+set xlabel "Stations " . type_station
+set ylabel "Consommation et capacité (en Kwh)"
 set grid
 
 # Définir les styles pour les barres
