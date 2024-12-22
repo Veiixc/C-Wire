@@ -33,7 +33,7 @@ Lors du lancement du programme, veuillez saisir vos stations à analyser. Si vou
 ```
 
 ## Auteurs
-AGBAVOR Emmanuel 
+AGBAVOR Emmanuel
 BRINGUIER Valérian  
 EDWARDS Noam
 
