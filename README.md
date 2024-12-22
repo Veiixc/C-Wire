@@ -15,14 +15,22 @@ Ce projet permet de faire une synthèse des données d'un système de distributi
 [shell]: https://img.shields.io/badge/shell-20232A?style=for-the-badge&logo=Shell&logoColor=white&color=blue
 [shell-url]: https://tiswww.case.edu/php/chet/bash/bashtop.html
 
+[![gnuplot][gnuplot]][gnuplot-url]
+
+[gnuplot]: https://img.shields.io/badge/gnuplot-20232A?style=for-the-badge&logo=gnuplot&logoColor=white&color=red
+[gnuplot-url]: http://www.gnuplot.info/documentation.html
+
 ## Exécution 
 
 ```sh
-./c-wire.sh
+./c-wire.sh 
 ```
 
 ## Utilisation
-TODO
+Lors du lancement du programme, veuillez saisir vos stations à analyser. Si vous avez besoin d'aide afin de fournir des demandes valides, veuillez utiliser la commande -h.
+```sh
+./c-wire.sh -h
+```
 
 ## Auteurs
 AGBAVOR Emmanuel 

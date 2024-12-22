@@ -75,7 +75,7 @@ void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_
 
     FILE *fichier = fopen(nom_fichier, "w");
 
-    fprintf(fichier, "Station %s:Capacité:Consommation %s\n", station, consommateur);
+    fprintf(fichier, "Station %s:Capacité:Consommation (%s)\n", station, consommateur);
     remplirFichier(fichier, arbre);
 
     if (strcmp(station, "lv") == 0 && strcmp(consommateur, "all") == 0)
