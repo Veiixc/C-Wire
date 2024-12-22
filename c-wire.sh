@@ -8,14 +8,34 @@ aide(){
     echo "Type de consommateur (comp, indiv, all) (obligatoire)"
     echo "Identification d'une centrale(optionnel)"
 }
+
+debut_temps=$(date +%s%3N)
+# indice 1 = temps de filtrage
+# indice 2 = Exécution du programme
+# indice 2 = Création des graphiques
+temps_debut=($debut_temps $debut_temps $debut_temps)
+temps_fin=($debut_temps $debut_temps $debut_temps)
+temps_nom=("Filtrage des données" "Exécution du programme" "Création des graphiques")
+afficherTemps(){
+    for i in "${!temps_debut[@]}"; do
+        debut=${temps_debut[$i]}
+        fin=${temps_fin[$i]}
+        duree=$(echo "scale=3; ($fin - $debut) / 1000" | bc)
+        echo -e "L'exécution de ${temps_nom[$i]} a pris ${duree} secondes."
+    done
+}
+
 if [[ $@ == *"-h"* ]]; then
- echo "aide à afficher"
- aide
+    echo "aide à afficher"
+    aide
+    afficherTemps
     exit 0
 fi 
 
 if [ $# -lt 3 ]; then 
     echo "arguments insuffisants"
+    aide
+    afficherTemps
     exit 1          
 fi
 
@@ -25,30 +45,34 @@ type_consommateur=$3
 id_centrale=$4
 
 if [ ! -f "$chemin_csv" ]; then
-echo "Erreur : le fichier CSV n'existe pas"
-aide
-exit 2
+    echo "Erreur : le fichier CSV n'existe pas"
+    aide
+    afficherTemps
+    exit 2
 fi
 
 # if (( $type_station != "hvb" )); then 
 # if [ $type_station != "hvb" ] ; then 
 
 if [[ ! "$type_station" =~ ^(hvb|hva|lv)$ ]]; then
-    echo -e "Erreur : Le type de station doit être hvb, hva ou lv."
-aide
+    echo "Erreur : Le type de station doit être hvb, hva ou lv."
+    aide
+    afficherTemps
     exit 3
 fi
 
 if [[ ! "$type_consommateur" =~ ^(comp|indiv|all)$ ]]; then
-    echo -e "Erreur : Le type de consommateur doit être 'comp', 'indiv' ou 'all'."
-aide
+    echo "Erreur : Le type de consommateur doit être 'comp', 'indiv' ou 'all'."
+    aide
+    afficherTemps
     exit 1
 fi
  
  if [[ "$type_station" =~ ^(hvb|hva)$ && "$type_consommateur" =~ ^(indiv|all)$ ]]; then
     echo -e "Erreur: Les combinaisons suivantes sont interdites :"
     echo "  hvb all, hvb indiv, hva all, hva indiv"
-aide
+    aide
+    afficherTemps
     exit 1
 fi
 
@@ -60,7 +84,7 @@ if [[ ! -x "$c_compilation" ]]; then
         echo "Compilation réussie."
     else
         echo -e "Erreur : Échec de la compilation du programme C."
-aide
+        afficherTemps
         exit 1
     fi
 fi
@@ -69,7 +93,7 @@ mkdir -p tmp graphs tests
 rm -rf tmp/* 
 
 # Filtrage des données
-debut_temps=$(date +%s%3N)
+temps_debut[0]=$(date +%s%3N)
 fichier_filtre="./tmp/${2}_${3}_${4}cwire.csv"
 awk -F';' -v station="$type_station" -v conso=$type_consommateur -v id_centrale=$id_centrale -v fichier_filtre="$fichier_filtre" '
 BEGIN {
@@ -103,35 +127,35 @@ END {
   print "Succès du traitement. Les résultats se trouvent dans le dossier tmp.";
   print ""
 } ' $chemin_csv
-fin_temps=$(date +%s%3N)
-duree=$((fin_temps - debut_temps))
-echo -e "L'exécution du filtrage des données a pris $duree millisecondes."
+temps_fin[0]=$(date +%s%3N)
+
 
 # Exécution du programme C
 echo "Lancement du programme"
-debut_temps=$(date +%s%3N)
+temps_debut[1]=$(date +%s%3N)
 $c_compilation $fichier_filtre $type_station $type_consommateur $id_centrale
-fin_temps=$(date +%s%3N)
-duree=$((fin_temps - debut_temps))
-echo -e "L'exécution du programme a pris $duree millisecondes."
+temps_fin[1]=$(date +%s%3N)
 
 # Vérification du succès de l'exécution de la commande précédente
 if [[ $? -ne 0 ]]; then
     # Si la commande a échoué, affiche un message d'erreur et termine le script
     echo -e "Erreur : Le traitement a échoué.\n"
+    afficherTemps
     exit 1
 fi
 
 # Génération des graphiques
 directory="./tests"
-debut_temps=$(date +%s%3N)
+temps_debut[2]=$(date +%s%3N)
 for file in "$directory"/*.csv; do
+    base_name=$(basename "$file" .csv)
+  # Générer le chemin de sortie dans le dossier graphs basename recupere le nom sans le chemin
+  output_file="./graphs/${base_name}.png"
   # Générer la commande gnuplot avec le fichier spécifique
-  gnuplot -e "datafileEntry='$file' ; nom_image='$file.png' ; type_station='$type_station'" ./graphs/plot.gp
+  gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plot.gp
 done
-fin_temps=$(date +%s%3N)
-duree=$((fin_temps - debut_temps))
-echo -e "La génération des graphiques a pris $duree millisecondes."
+temps_fin[2]=$(date +%s%3N)
 
+afficherTemps
 echo "Fin du traitement de données."
 exit 0

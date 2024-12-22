@@ -4,8 +4,8 @@
 
 int hauteur(NoeudAVL *avl);
 void mettreaJourHauteur(NoeudAVL *avl);
-NoeudAVL *rotationGauche(NoeudAVL *a);
-NoeudAVL *rotationDroite(NoeudAVL *a);
+NoeudAVL *rotationGauche(NoeudAVL *avl);
+NoeudAVL *rotationDroite(NoeudAVL *avl);
 NoeudAVL *rotationDoubleDroite(NoeudAVL *avl);
 NoeudAVL *rotationDoubleGauche(NoeudAVL *avl);
 NoeudAVL *equilibrerAVL(NoeudAVL *avl);

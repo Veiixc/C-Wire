@@ -68,7 +68,10 @@ DataCSV *parserLigneCSV(const char *chemin, int *nb_entrees)
 void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_centrale)
 {
     char nom_fichier[50];
-    sprintf(nom_fichier, "./tests/%s_%s_%s.csv", station, consommateur, id_centrale);
+    if (strcmp(id_centrale, "") == 0)
+        sprintf(nom_fichier, "./tests/%s_%s.csv", station, consommateur);
+    else
+        sprintf(nom_fichier, "./tests/%s_%s_%s.csv", station, consommateur, id_centrale);
 
     FILE *file = fopen(nom_fichier, "w");
 
