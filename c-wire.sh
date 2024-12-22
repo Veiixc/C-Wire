@@ -155,12 +155,12 @@ for file in "$directory"/*.csv; do
         sort -t':' -k2 -n $file > "./tests/${base_name}.csv"
 
         # genere le fichier lv_min_max
-        if [ $file == "./tmp/lv_all_non_trie.csv" ]; then
-            sort -t':' -k4 -n "./tmp/lv_all_minmax.csv" > "./tmp/lv_all_minmax_trie.csv"
-            head -n 11 "./tmp/lv_all_minmax_trie.csv" > ./tmp/lv_min_trie.csv
-            tail -n 10 "./tmp/lv_all_minmax_trie.csv" > ./tmp/lv_max_trie.csv
+        if [[ $file == "./tmp/lv_all_non_trie.csv" || $file =~ ^\./tmp/lv_all.*\.csv$ ]]; then
+            sort -t':' -k4 -n "./tmp/${base_name}_minmax.csv" > "./tmp/${base_name}_minmax_trie.csv"
+            head -n 11 "./tmp/${base_name}_minmax_trie.csv" > ./tmp/lv_min_trie.csv
+            tail -n 10 "./tmp/${base_name}_minmax_trie.csv" > ./tmp/lv_max_trie.csv
             cat ./tmp/lv_max_trie.csv >> ./tmp/lv_min_trie.csv
-            cp ./tmp/lv_min_trie.csv ./tests/lv_all_minmax.csv
+            cp ./tmp/lv_min_trie.csv ./tests/${base_name}_minmax.csv
         fi
     fi
 done;
@@ -175,9 +175,9 @@ for file in "$directory"/*.csv; do
     # Générer le chemin de sortie dans le dossier graphs basename recupere le nom sans le chemin
     output_file="./graphs/${base_name}.png"
     # Générer la commande gnuplot avec le fichier spécifique
-    if [ $file == "./tests/lv_all_minmax.csv" ]; then
-        gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plotLV.gp
-    elif [[ ! $file =~ ^\./tests/lv_all\.csv$ ]]; then
+    if [[ $file =~ ^\./tests/lv_all_.*minmax\.csv$ ]]; then
+        gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plotLV.gp 
+    elif [[ ! $file =~ ^\./tests/lv_all.*\.csv$ ]]; then
         gnuplot -e "datafileEntry='$file' ; nom_image='$output_file' ; type_station='$type_station'" ./graphs/plot.gp
     fi  
 done

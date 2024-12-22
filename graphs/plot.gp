@@ -5,6 +5,9 @@ set title "Capacité et Consommation par Station " . type_station
 set xlabel "Stations " . type_station
 set ylabel "Consommation et capacité (en Kwh)"
 set grid
+set xtics rotate by 45  # Rotation pour plus de lisibilité des tics
+set xtics offset 0,-1.5  # Déplacer les tics vers le bas
+
 
 # Définir les styles pour les barres
 set style fill solid 1.0 border -1  # Remplissage des barres

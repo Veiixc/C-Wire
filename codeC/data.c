@@ -77,12 +77,18 @@ void ecrireFichier(NoeudAVL *arbre, char *station, char *consommateur, char *id_
 
     fprintf(fichier, "Station %s:Capacité:Consommation %s\n", station, consommateur);
     remplirFichier(fichier, arbre);
+
     if (strcmp(station, "lv") == 0 && strcmp(consommateur, "all") == 0)
     {
-        FILE *fileLV = fopen("./tmp/lv_all_minmax.csv", "w");
-        fprintf(fileLV, "Station LV:Capacité:Consommation (tous):consommation absolue:Surconsommation ou sousconsommation\n");
-        remplirFichierLV(fileLV, arbre);
-        fclose(fileLV);
+        if (strcmp(id_centrale, "") == 0)
+            sprintf(nom_fichier, "./tmp/%s_all_minmax.csv", station);
+        else
+            sprintf(nom_fichier, "./tmp/lv_all_%s_minmax.csv", id_centrale);
+
+        FILE *fichierLV = fopen(nom_fichier, "w");
+        fprintf(fichierLV, "Station LV:Capacité:Consommation (tous):consommation absolue:Surconsommation ou sousconsommation\n");
+        remplirFichierLV(fichierLV, arbre);
+        fclose(fichierLV);
     }
     fclose(fichier);
 }

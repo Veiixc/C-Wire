@@ -54,3 +54,7 @@ dkms.conf
 #C-wire
 *C-wire
 *c-wire_v25.dat
+/tmp/*
+
+#IDE
+.vscode/*
