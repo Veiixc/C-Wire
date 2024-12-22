@@ -1,4 +1,4 @@
-# JProjet C-Wire
+# Projet C-Wire
 
 ## Description
 Ce projet permet de faire une synthèse des données d'un système de distribution électrique. Les consignes sont détaillées dans le fichier `Projet_C-Wire_preIng2_2024_2025-v1.4.pdf` situé dans le dossier principal du projet.
