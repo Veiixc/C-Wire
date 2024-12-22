@@ -12,38 +12,38 @@ int equilibre(NoeudAVL *avl)
     return avl->equilibre;
 }
 
-NoeudAVL *rotationGauche(NoeudAVL *a)
+NoeudAVL *rotationGauche(NoeudAVL *avl)
 {
-    if (a == NULL)
+    if (avl == NULL)
     {
         return 0;
     }
-    NoeudAVL *pivot = a->fd;
-    int eq_a = a->equilibre, eq_p = pivot->equilibre;
+    NoeudAVL *pivot = avl->fd;
+    int eq_avl = avl->equilibre, eq_p = pivot->equilibre;
 
-    a->fd = pivot->fg;
-    pivot->fg = a;
+    avl->fd = pivot->fg;
+    pivot->fg = avl;
 
-    a->equilibre = eq_a - max(eq_p, 0) - 1;                       // voir CM
-    pivot->equilibre = min3(eq_a - 2, eq_a + eq_p - 2, eq_p - 1); // voir CM
+    avl->equilibre = eq_avl - max(eq_p, 0) - 1;                       // voir CM
+    pivot->equilibre = min3(eq_avl - 2, eq_avl + eq_p - 2, eq_p - 1); // voir CM
 
     return pivot;
 }
 
-NoeudAVL *rotationDroite(NoeudAVL *a)
+NoeudAVL *rotationDroite(NoeudAVL *avl)
 {
-    if (a == NULL)
+    if (avl == NULL)
     {
         return 0;
     }
-    NoeudAVL *pivot = a->fg;
-    int eq_a = a->equilibre, eq_p = pivot->equilibre;
+    NoeudAVL *pivot = avl->fg;
+    int eq_avl = avl->equilibre, eq_p = pivot->equilibre;
 
-    a->fg = pivot->fd;
-    pivot->fd = a;
+    avl->fg = pivot->fd;
+    pivot->fd = avl;
 
-    a->equilibre = eq_a - min(eq_p, 0) + 1;
-    pivot->equilibre = max3(eq_a + 2, eq_a + eq_p + 2, eq_p + 1);
+    avl->equilibre = eq_avl - min(eq_p, 0) + 1;                       // voir CM
+    pivot->equilibre = max3(eq_avl + 2, eq_avl + eq_p + 2, eq_p + 1); // voir CM
 
     return pivot;
 }
@@ -114,53 +114,26 @@ NoeudAVL *equilibrerAVL(NoeudAVL *avl)
     { // Cas où l'arbre est déséquilibré à droite
         if (avl->fd->equilibre >= 0)
         {
-            return rotationGauche(avl); // Rotation simple gauche
+            return rotationGauche(avl);
         }
         else
         {
-            return rotationDoubleGauche(avl); // Double rotation gauche
+            return rotationDoubleGauche(avl);
         }
     }
     else if (avl->equilibre <= -2)
     { // Cas où l'arbre est déséquilibré à gauche
         if (avl->fg->equilibre <= 0)
         {
-            return rotationDroite(avl); // Rotation simple droite
+            return rotationDroite(avl);
         }
         else
         {
-            return rotationDoubleDroite(avl); // Double rotation droite
+            return rotationDoubleDroite(avl);
         }
     }
-    return avl; // Aucun rééquilibrage nécessaire
+    return avl;
 }
-
-// NoeudAVL *insertionAVL(NoeudAVL *parent, NoeudAVL *noeud)
-// {
-// if (noeud == NULL)
-// {
-//     return NULL;
-// }
-// if (parent == NULL)
-// {
-//     return noeud;
-// }
-// else if (noeud->id < parent->id)
-// {
-//     parent->fg = insertionAVL(parent->fg, noeud);
-// }
-// else if (noeud->id > parent->id)
-// {
-//     parent->fd = insertionAVL(parent->fd, noeud);
-// }
-// else
-// {
-//     parent->capacite += noeud->capacite;
-//     parent->charge += noeud->charge;
-// }
-// parent->equilibre = equilibre(parent); // mettreaJourHauteur(parent);
-// return equilibrerAVL(parent);
-// }
 
 NoeudAVL *insertionAVL(NoeudAVL *parent, NoeudAVL *noeud, int *h)
 {

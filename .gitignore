@@ -51,5 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#executable
+#C-wire
 *C-wire
+*c-wire_v25.dat
